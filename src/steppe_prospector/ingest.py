@@ -130,13 +130,24 @@ def _crop_and_reproject(
                 raise IngestionError(f"Source raster has no CRS: {href}")
 
             geom_src = _transform_geometry(aoi_geometry_wgs84, "EPSG:4326", src.crs)
+
+            # np.nan is not representable in integer dtypes (e.g. uint16).
+            # Use the raster's own nodata value when available; otherwise fall
+            # back to 0 for integer types and NaN for float types so that
+            # rasterio.mask.mask can fill masked pixels without a type error.
+            src_nodata = src.nodata
+            if np.issubdtype(src.dtypes[0], np.integer):
+                mask_nodata = int(src_nodata) if src_nodata is not None else 0
+            else:
+                mask_nodata = src_nodata if src_nodata is not None else np.nan
+
             try:
                 data, src_transform = rio_mask(
                     src,
                     [mapping(geom_src)],
                     crop=True,
                     filled=True,
-                    nodata=np.nan,
+                    nodata=mask_nodata,
                     indexes=1,
                 )
             except ValueError as exc:
@@ -144,9 +155,13 @@ def _crop_and_reproject(
 
             array = data[0] if getattr(data, "ndim", 0) == 3 else data
             array = array.astype("float32", copy=False)
-            src_nodata = src.nodata
+            # Replace the sentinel nodata with NaN now that we are in float32.
             if src_nodata is not None and np.isfinite(src_nodata):
                 array = np.where(array == src_nodata, np.nan, array)
+            elif np.issubdtype(src.dtypes[0], np.integer) and src_nodata is None:
+                # Nothing to replace – 0 was used as fill but may be valid data,
+                # so we leave the array untouched (same behaviour as before the fix).
+                pass
 
             destination = np.full((target.height, target.width), np.nan, dtype="float32")
             reproject(

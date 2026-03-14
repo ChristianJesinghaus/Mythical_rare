@@ -169,19 +169,34 @@ class STACClient:
 
 
 class PlanetaryComputerSigner:
-    def __init__(self, timeout_s: float = 120.0) -> None:
+    def __init__(self, timeout_s: float = 120.0, max_retries: int = 5) -> None:
         self.timeout_s = timeout_s
+        self.max_retries = max_retries
         self._session = requests.Session()
 
     def sign(self, href: str) -> str:
-        response = self._session.get(
-            "https://planetarycomputer.microsoft.com/api/sas/v1/sign",
-            params={"href": href},
-            timeout=self.timeout_s,
-        )
-        response.raise_for_status()
-        payload = response.json()
-        return str(payload.get("href") or href)
+        backoff = 1.0
+        last_exc: Exception | None = None
+        for attempt in range(self.max_retries):
+            response = self._session.get(
+                "https://planetarycomputer.microsoft.com/api/sas/v1/sign",
+                params={"href": href},
+                timeout=self.timeout_s,
+            )
+            if response.status_code == 429:
+                retry_after = response.headers.get("Retry-After")
+                wait = float(retry_after) if retry_after else backoff
+                import time
+                time.sleep(wait)
+                backoff = min(backoff * 2, 60.0)
+                last_exc = requests.exceptions.HTTPError(
+                    f"429 Too Many Requests (attempt {attempt + 1})", response=response
+                )
+                continue
+            response.raise_for_status()
+            payload = response.json()
+            return str(payload.get("href") or href)
+        raise last_exc  # type: ignore[misc]
 
     def close(self) -> None:
         self._session.close()

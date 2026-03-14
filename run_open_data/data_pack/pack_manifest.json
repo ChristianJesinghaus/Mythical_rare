@@ -1,0 +1,33 @@
+{
+  "target_grid": {
+    "crs": "EPSG:32646",
+    "width": 321,
+    "height": 457,
+    "resolution": 30.0,
+    "transform": [
+      30.0,
+      0.0,
+      271920.0,
+      0.0,
+      -30.0,
+      5222880.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "outputs": {
+    "dem": "run_open_data\\data_pack\\dem.tif",
+    "optical": [
+      "run_open_data\\data_pack\\optical\\2024-09-05_LC09_L2SP_141028_20240905_02_T1.tif",
+      "run_open_data\\data_pack\\optical\\2024-09-13_LC08_L2SP_141028_20240913_02_T1.tif",
+      "run_open_data\\data_pack\\optical\\2024-09-04_LC08_L2SP_142027_20240904_02_T1.tif",
+      "run_open_data\\data_pack\\optical\\2024-08-27_LC09_L2SP_142027_20240827_02_T1.tif",
+      "run_open_data\\data_pack\\optical\\2024-05-16_LC09_L2SP_141028_20240516_02_T1.tif",
+      "run_open_data\\data_pack\\optical\\2024-07-18_LC08_L2SP_142027_20240718_02_T1.tif"
+    ],
+    "sar": [],
+    "historical": [],
+    "quality": "run_open_data\\data_pack\\quality.tif"
+  }
+}

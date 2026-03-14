@@ -1,0 +1,649 @@
+{
+  "endpoint": "https://planetarycomputer.microsoft.com/api/stac/v1",
+  "aoi_bounds": [
+    90.0,
+    47.0,
+    90.12,
+    47.12
+  ],
+  "series": {
+    "optical": [
+      {
+        "item_id": "LC09_L2SP_141028_20240905_02_T1",
+        "collection": "landsat-c2-l2",
+        "datetime": "2024-09-05T04:42:51.571655Z",
+        "bbox": [
+          89.25128003895553,
+          44.90287519234467,
+          92.4157075261113,
+          47.12932480765533
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                89.99690957185064,
+                47.08426424686757
+              ],
+              [
+                89.39793307680468,
+                45.37555384250658
+              ],
+              [
+                91.70329061983013,
+                44.95811178841699
+              ],
+              [
+                92.3685774419376,
+                46.66323193019548
+              ],
+              [
+                89.99690957185064,
+                47.08426424686757
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "created": "2024-09-08T09:22:02.995966Z",
+          "sci:doi": "10.5066/P9OGBGM6",
+          "datetime": "2024-09-05T04:42:51.571655Z",
+          "platform": "landsat-9",
+          "proj:epsg": 32646,
+          "proj:shape": [
+            8041,
+            7951
+          ],
+          "description": "Landsat Collection 2 Level-2",
+          "instruments": [
+            "oli",
+            "tirs"
+          ],
+          "eo:cloud_cover": 0.02,
+          "proj:transform": [
+            30.0,
+            0.0,
+            215385.0,
+            0.0,
+            -30.0,
+            5219715.0
+          ],
+          "view:off_nadir": 0,
+          "landsat:wrs_row": "028",
+          "landsat:scene_id": "LC91410282024249LGN00",
+          "landsat:wrs_path": "141",
+          "landsat:wrs_type": "2",
+          "view:sun_azimuth": 152.7888911,
+          "landsat:correction": "L2SP",
+          "view:sun_elevation": 47.62137928,
+          "landsat:cloud_cover_land": 0.02,
+          "landsat:collection_number": "02",
+          "landsat:collection_category": "T1"
+        },
+        "assets": {
+          "red": {
+            "key": "red",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/141/028/LC09_L2SP_141028_20240905_20240906_02_T1/LC09_L2SP_141028_20240905_20240906_02_T1_SR_B4.TIF"
+          },
+          "nir": {
+            "key": "nir08",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/141/028/LC09_L2SP_141028_20240905_20240906_02_T1/LC09_L2SP_141028_20240905_20240906_02_T1_SR_B5.TIF"
+          }
+        }
+      },
+      {
+        "item_id": "LC08_L2SP_141028_20240913_02_T1",
+        "collection": "landsat-c2-l2",
+        "datetime": "2024-09-13T04:43:04.223660Z",
+        "bbox": [
+          89.23138005016033,
+          44.89957519384324,
+          92.39671753330049,
+          47.13191480615676
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                89.97108744913744,
+                47.08655351383131
+              ],
+              [
+                89.37210643880024,
+                45.3779759279754
+              ],
+              [
+                91.66979044997052,
+                44.95934680036703
+              ],
+              [
+                92.33523060463236,
+                46.664392941735265
+              ],
+              [
+                89.97108744913744,
+                47.08655351383131
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "created": "2024-09-24T09:25:49.152681Z",
+          "sci:doi": "10.5066/P9OGBGM6",
+          "datetime": "2024-09-13T04:43:04.223660Z",
+          "platform": "landsat-8",
+          "proj:epsg": 32646,
+          "proj:shape": [
+            8061,
+            7951
+          ],
+          "description": "Landsat Collection 2 Level-2",
+          "instruments": [
+            "oli",
+            "tirs"
+          ],
+          "eo:cloud_cover": 1.26,
+          "proj:transform": [
+            30.0,
+            0.0,
+            213885.0,
+            0.0,
+            -30.0,
+            5220015.0
+          ],
+          "view:off_nadir": 0,
+          "landsat:wrs_row": "028",
+          "landsat:scene_id": "LC81410282024257LGN00",
+          "landsat:wrs_path": "141",
+          "landsat:wrs_type": "2",
+          "view:sun_azimuth": 155.12887084,
+          "landsat:correction": "L2SP",
+          "view:sun_elevation": 44.96567694,
+          "landsat:cloud_cover_land": 1.26,
+          "landsat:collection_number": "02",
+          "landsat:collection_category": "T1"
+        },
+        "assets": {
+          "red": {
+            "key": "red",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/141/028/LC08_L2SP_141028_20240913_20240920_02_T1/LC08_L2SP_141028_20240913_20240920_02_T1_SR_B4.TIF"
+          },
+          "nir": {
+            "key": "nir08",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/141/028/LC08_L2SP_141028_20240913_20240920_02_T1/LC08_L2SP_141028_20240913_20240920_02_T1_SR_B5.TIF"
+          }
+        }
+      },
+      {
+        "item_id": "LC08_L2SP_142027_20240904_02_T1",
+        "collection": "landsat-c2-l2",
+        "datetime": "2024-09-04T04:48:50.028761Z",
+        "bbox": [
+          88.28166511065935,
+          46.34876510275912,
+          91.44805277088297,
+          48.52141489724088
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                88.94109356209948,
+                48.50845681854046
+              ],
+              [
+                88.31543782922675,
+                46.802121316585506
+              ],
+              [
+                90.67083337721994,
+                46.37707385425256
+              ],
+              [
+                91.36933649342609,
+                48.07840344141677
+              ],
+              [
+                88.94109356209948,
+                48.50845681854046
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "created": "2024-09-08T09:23:58.082815Z",
+          "sci:doi": "10.5066/P9OGBGM6",
+          "datetime": "2024-09-04T04:48:50.028761Z",
+          "platform": "landsat-8",
+          "proj:epsg": 32645,
+          "proj:shape": [
+            7781,
+            7681
+          ],
+          "description": "Landsat Collection 2 Level-2",
+          "instruments": [
+            "oli",
+            "tirs"
+          ],
+          "eo:cloud_cover": 1.99,
+          "proj:transform": [
+            30.0,
+            0.0,
+            598485.0,
+            0.0,
+            -30.0,
+            5375115.0
+          ],
+          "view:off_nadir": 0,
+          "landsat:wrs_row": "027",
+          "landsat:scene_id": "LC81420272024248LGN00",
+          "landsat:wrs_path": "142",
+          "landsat:wrs_type": "2",
+          "view:sun_azimuth": 153.83831875,
+          "landsat:correction": "L2SP",
+          "view:sun_elevation": 46.82134489,
+          "landsat:cloud_cover_land": 1.99,
+          "landsat:collection_number": "02",
+          "landsat:collection_category": "T1"
+        },
+        "assets": {
+          "red": {
+            "key": "red",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/142/027/LC08_L2SP_142027_20240904_20240906_02_T1/LC08_L2SP_142027_20240904_20240906_02_T1_SR_B4.TIF"
+          },
+          "nir": {
+            "key": "nir08",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/142/027/LC08_L2SP_142027_20240904_20240906_02_T1/LC08_L2SP_142027_20240904_20240906_02_T1_SR_B5.TIF"
+          }
+        }
+      },
+      {
+        "item_id": "LC09_L2SP_142027_20240827_02_T1",
+        "collection": "landsat-c2-l2",
+        "datetime": "2024-08-27T04:48:43.937326Z",
+        "bbox": [
+          88.26604510755014,
+          46.34949510231151,
+          91.42783277464278,
+          48.52160489768849
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                88.93366337556976,
+                48.505342991252135
+              ],
+              [
+                88.308290913151,
+                46.79923350259643
+              ],
+              [
+                90.67185657688066,
+                46.37488080910292
+              ],
+              [
+                91.37038145306073,
+                48.076473651466394
+              ],
+              [
+                88.93366337556976,
+                48.505342991252135
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "created": "2024-10-02T09:33:46.324196Z",
+          "sci:doi": "10.5066/P9OGBGM6",
+          "datetime": "2024-08-27T04:48:43.937326Z",
+          "platform": "landsat-9",
+          "proj:epsg": 32645,
+          "proj:shape": [
+            7781,
+            7671
+          ],
+          "description": "Landsat Collection 2 Level-2",
+          "instruments": [
+            "oli",
+            "tirs"
+          ],
+          "eo:cloud_cover": 2.92,
+          "proj:transform": [
+            30.0,
+            0.0,
+            597285.0,
+            0.0,
+            -30.0,
+            5375115.0
+          ],
+          "view:off_nadir": 0,
+          "landsat:wrs_row": "027",
+          "landsat:scene_id": "LC91420272024240LGN00",
+          "landsat:wrs_path": "142",
+          "landsat:wrs_type": "2",
+          "view:sun_azimuth": 151.54279694,
+          "landsat:correction": "L2SP",
+          "view:sun_elevation": 49.35871727,
+          "landsat:cloud_cover_land": 2.92,
+          "landsat:collection_number": "02",
+          "landsat:collection_category": "T1"
+        },
+        "assets": {
+          "red": {
+            "key": "red",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/142/027/LC09_L2SP_142027_20240827_20240828_02_T1/LC09_L2SP_142027_20240827_20240828_02_T1_SR_B4.TIF"
+          },
+          "nir": {
+            "key": "nir08",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/142/027/LC09_L2SP_142027_20240827_20240828_02_T1/LC09_L2SP_142027_20240827_20240828_02_T1_SR_B5.TIF"
+          }
+        }
+      },
+      {
+        "item_id": "LC09_L2SP_141028_20240516_02_T1",
+        "collection": "landsat-c2-l2",
+        "datetime": "2024-05-16T04:42:39.559999Z",
+        "bbox": [
+          89.20397004454131,
+          44.901425195973985,
+          92.37006751936968,
+          47.129064804026015
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                89.9483344995534,
+                47.0835191138785
+              ],
+              [
+                89.35163098351582,
+                45.37462240378775
+              ],
+              [
+                91.65764089708834,
+                44.95839443850533
+              ],
+              [
+                92.32151287973262,
+                46.66377245865204
+              ],
+              [
+                89.9483344995534,
+                47.0835191138785
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "created": "2024-05-24T09:12:23.532191Z",
+          "sci:doi": "10.5066/P9OGBGM6",
+          "datetime": "2024-05-16T04:42:39.559999Z",
+          "platform": "landsat-9",
+          "proj:epsg": 32646,
+          "proj:shape": [
+            8041,
+            7951
+          ],
+          "description": "Landsat Collection 2 Level-2",
+          "instruments": [
+            "oli",
+            "tirs"
+          ],
+          "eo:cloud_cover": 4.12,
+          "proj:transform": [
+            30.0,
+            0.0,
+            211785.0,
+            0.0,
+            -30.0,
+            5219715.0
+          ],
+          "view:off_nadir": 0,
+          "landsat:wrs_row": "028",
+          "landsat:scene_id": "LC91410282024137LGN00",
+          "landsat:wrs_path": "141",
+          "landsat:wrs_type": "2",
+          "view:sun_azimuth": 145.7299711,
+          "landsat:correction": "L2SP",
+          "view:sun_elevation": 59.50770502,
+          "landsat:cloud_cover_land": 4.12,
+          "landsat:collection_number": "02",
+          "landsat:collection_category": "T1"
+        },
+        "assets": {
+          "red": {
+            "key": "red",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/141/028/LC09_L2SP_141028_20240516_20240517_02_T1/LC09_L2SP_141028_20240516_20240517_02_T1_SR_B4.TIF"
+          },
+          "nir": {
+            "key": "nir08",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/141/028/LC09_L2SP_141028_20240516_20240517_02_T1/LC09_L2SP_141028_20240516_20240517_02_T1_SR_B5.TIF"
+          }
+        }
+      },
+      {
+        "item_id": "LC08_L2SP_142027_20240718_02_T1",
+        "collection": "landsat-c2-l2",
+        "datetime": "2024-07-18T04:48:29.770738Z",
+        "bbox": [
+          88.28166511023998,
+          46.348915102759115,
+          91.44401277138118,
+          48.52141489724088
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                88.94472639242873,
+                48.50785565949522
+              ],
+              [
+                88.31857563992436,
+                46.801815228145884
+              ],
+              [
+                90.67350413658059,
+                46.376177917696126
+              ],
+              [
+                91.3725036455474,
+                48.077742742668335
+              ],
+              [
+                88.94472639242873,
+                48.50785565949522
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "created": "2024-07-25T09:25:17.458155Z",
+          "sci:doi": "10.5066/P9OGBGM6",
+          "datetime": "2024-07-18T04:48:29.770738Z",
+          "platform": "landsat-8",
+          "proj:epsg": 32645,
+          "proj:shape": [
+            7781,
+            7671
+          ],
+          "description": "Landsat Collection 2 Level-2",
+          "instruments": [
+            "oli",
+            "tirs"
+          ],
+          "eo:cloud_cover": 4.2,
+          "proj:transform": [
+            30.0,
+            0.0,
+            598485.0,
+            0.0,
+            -30.0,
+            5375115.0
+          ],
+          "view:off_nadir": 0,
+          "landsat:wrs_row": "027",
+          "landsat:scene_id": "LC81420272024200LGN00",
+          "landsat:wrs_path": "142",
+          "landsat:wrs_type": "2",
+          "view:sun_azimuth": 142.36116639,
+          "landsat:correction": "L2SP",
+          "view:sun_elevation": 59.11174503,
+          "landsat:cloud_cover_land": 4.2,
+          "landsat:collection_number": "02",
+          "landsat:collection_category": "T1"
+        },
+        "assets": {
+          "red": {
+            "key": "red",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/142/027/LC08_L2SP_142027_20240718_20240723_02_T1/LC08_L2SP_142027_20240718_20240723_02_T1_SR_B4.TIF"
+          },
+          "nir": {
+            "key": "nir08",
+            "href": "https://landsateuwest.blob.core.windows.net/landsat-c2/level-2/standard/oli-tirs/2024/142/027/LC08_L2SP_142027_20240718_20240723_02_T1/LC08_L2SP_142027_20240718_20240723_02_T1_SR_B5.TIF"
+          }
+        }
+      }
+    ],
+    "dem": [
+      {
+        "item_id": "Copernicus_DSM_COG_10_N47_00_E090_00_DEM",
+        "collection": "cop-dem-glo-30",
+        "datetime": "2021-04-22T00:00:00Z",
+        "bbox": [
+          89.99986111111112,
+          47.00013888888889,
+          90.99986111111112,
+          48.00013888888889
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                90.99986111,
+                47.00013889
+              ],
+              [
+                90.99986111,
+                48.00013889
+              ],
+              [
+                89.99986111,
+                48.00013889
+              ],
+              [
+                89.99986111,
+                47.00013889
+              ],
+              [
+                90.99986111,
+                47.00013889
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "datetime": "2021-04-22T00:00:00Z",
+          "platform": "TanDEM-X",
+          "proj:epsg": 4326,
+          "proj:shape": [
+            3600,
+            3600
+          ],
+          "proj:transform": [
+            0.0002777777777777778,
+            0.0,
+            89.99986111111112,
+            0.0,
+            -0.0002777777777777778,
+            48.00013888888889
+          ]
+        },
+        "assets": {
+          "primary": {
+            "key": "data",
+            "href": "https://elevationeuwest.blob.core.windows.net/copernicus-dem/COP30_hh/Copernicus_DSM_COG_10_N47_00_E090_00_DEM.tif"
+          }
+        }
+      },
+      {
+        "item_id": "Copernicus_DSM_COG_10_N46_00_E090_00_DEM",
+        "collection": "cop-dem-glo-30",
+        "datetime": "2021-04-22T00:00:00Z",
+        "bbox": [
+          89.99986111111112,
+          46.00013888888889,
+          90.99986111111112,
+          47.00013888888889
+        ],
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                90.99986111,
+                46.00013889
+              ],
+              [
+                90.99986111,
+                47.00013889
+              ],
+              [
+                89.99986111,
+                47.00013889
+              ],
+              [
+                89.99986111,
+                46.00013889
+              ],
+              [
+                90.99986111,
+                46.00013889
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "gsd": 30,
+          "datetime": "2021-04-22T00:00:00Z",
+          "platform": "TanDEM-X",
+          "proj:epsg": 4326,
+          "proj:shape": [
+            3600,
+            3600
+          ],
+          "proj:transform": [
+            0.0002777777777777778,
+            0.0,
+            89.99986111111112,
+            0.0,
+            -0.0002777777777777778,
+            47.00013888888889
+          ]
+        },
+        "assets": {
+          "primary": {
+            "key": "data",
+            "href": "https://elevationeuwest.blob.core.windows.net/copernicus-dem/COP30_hh/Copernicus_DSM_COG_10_N46_00_E090_00_DEM.tif"
+          }
+        }
+      }
+    ]
+  }
+}
