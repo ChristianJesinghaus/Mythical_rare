@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "Generic Mongolia steppe example AOI"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [90.0000, 47.0000],
+        [90.1200, 47.0000],
+        [90.1200, 47.1200],
+        [90.0000, 47.1200],
+        [90.0000, 47.0000]
+      ]
+    ]
+  }
+}

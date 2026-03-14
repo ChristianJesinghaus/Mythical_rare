@@ -2,6 +2,23 @@
 penalty_strength = 0.35
 uncertainty_strength = 0.25
 
+[analysis]
+tile_size_m = 500
+# Set tile_step_m < tile_size_m for overlapping tiles.
+tile_step_m = 500
+min_tile_coverage = 0.20
+min_valid_pixel_fraction = 0.30
+min_adjusted_score = 0.30
+max_candidates = 500
+
+[feature_engine]
+anomaly_sigma_px = 2.0
+dem_sigma_px = 3.0
+anomaly_z_cap = 6.0
+temporal_anomaly_z = 2.5
+edge_sigma = 1.2
+mask_quantile = 0.85
+
 [landscape_weights.steppe]
 optical_anomaly = 0.9
 sar_anomaly = 0.6
@@ -46,4 +63,6 @@ contextual_fit = 0.6
 public_coordinate_blur_m = 5000
 restricted_coordinate_blur_m = 1000
 block_in_red_zones = true
+# block | authorized-only | allow-all
+red_zone_access = "authorized-only"
 withhold_sensitive_candidates = true

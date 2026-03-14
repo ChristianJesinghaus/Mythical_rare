@@ -3,15 +3,15 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .config import Settings, load_settings
-from .guardrails import RedZoneRule, redact_location, should_withhold
-from .models import Candidate, LandscapeClass, PermitMode, RankedCandidate, SensitivityLevel
+from .guardrails import RedZoneLike, demo_red_zones, redact_location, should_withhold
+from .models import Candidate, LandscapeClass, PermitMode, RankedCandidate
 from .scoring import confidence_band, explain_candidate, score_candidate
 
 
 @dataclass(slots=True)
 class MongoliaProspectionPipeline:
     settings: Settings = field(default_factory=load_settings)
-    red_zones: list[RedZoneRule] = field(default_factory=list)
+    red_zones: list[RedZoneLike] = field(default_factory=list)
 
     def _weights_for(self, landscape: LandscapeClass):
         key = landscape.value if landscape.value in self.settings.landscape_weights else "steppe"
@@ -53,12 +53,4 @@ class MongoliaProspectionPipeline:
         return ranked
 
 
-def demo_red_zones() -> list[RedZoneRule]:
-    """Synthetic placeholder rules for testing only.
-
-    Replace with official protected-area and heritage-zone polygons.
-    """
-
-    return [
-        RedZoneRule(name="synthetic_red_zone", min_lat=48.0, max_lat=48.4, min_lon=90.0, max_lon=90.4)
-    ]
+__all__ = ["MongoliaProspectionPipeline", "demo_red_zones"]

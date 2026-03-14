@@ -13,9 +13,42 @@ The product should:
 - redact exact coordinates unless permissions are present,
 - support manual review and later field verification.
 
-## 2. What the tool should optimize for in Mongolia
+## 2. Current implementation status
 
-The first working version should focus on the landscapes where open remote sensing has the best signal-to-noise ratio:
+### Already implemented in the repository
+
+- AOI loading from GeoJSON
+- AOI tiling in local metric CRS
+- local raster-pack ingestion
+- optical / SAR / DEM / historical tile feature extraction
+- Mongolia-specific candidate scoring
+- red-zone-aware redaction and withholding
+- JSON + GeoJSON + HTML review export
+- synthetic end-to-end demo pack and tests
+- STAC recipe parsing
+- live STAC item search and selection manifest export
+- automatic raster-pack preparation from selected STAC assets
+- optional Planetary Computer HREF signing for asset access
+- end-to-end `analyze-stac` CLI orchestration
+
+### Implemented, but still narrow
+
+- optical STAC ingestion currently derives **NDVI** only
+- SAR / DEM / historical ingestion currently supports **single-band** outputs
+- provider auth beyond public or pre-signed URLs is still limited
+- no official Mongolia heritage/protection layers are bundled yet
+
+### Not yet implemented
+
+- official protected-area / heritage-zone datasets
+- reviewer labeling loop
+- calibration against a permitted validation corpus
+- dedicated browser workstation
+- richer context layers such as water access, forest cover, and disturbance surfaces built automatically from open data
+
+## 3. What the tool should optimize for in Mongolia
+
+The first serious deployment version should focus on landscapes where open remote sensing has the best signal-to-noise ratio:
 
 - open **steppe / semi-arid plains**,
 - **river valleys and terraces**,
@@ -28,7 +61,7 @@ The first version should explicitly **down-weight**:
 - zones with poor high-resolution imagery,
 - sacred / protected / funerary landscapes lacking permits.
 
-## 3. Detection philosophy
+## 4. Detection philosophy
 
 The tool should never directly output “archaeological site confirmed”.
 
@@ -39,115 +72,142 @@ It should output:
 - an **evidence trace** explaining why the candidate was ranked,
 - a **sensitivity status** that controls whether coordinates are shown.
 
-## 4. System architecture
+## 5. System architecture
 
-### 4.1 AOI manager
+### 5.1 AOI manager
 
-Input:
-- polygon AOI
-- user role / permission mode
-- research objective
+Inputs:
+
+- polygon AOI,
+- user role / permission mode,
+- research objective.
 
 Responsibilities:
-- tile AOI into processing units
-- intersect AOI with red-zone layers
-- block or blur high-sensitivity outputs
-- attach provenance metadata
 
-### 4.2 Data ingestion layer
+- tile AOI into processing units,
+- intersect AOI with red-zone layers,
+- block or blur high-sensitivity outputs,
+- attach provenance metadata.
 
-Planned providers:
-- Copernicus Data Space / STAC
-- openEO back-end
-- optional Google Earth Engine for research deployments
-- USGS EarthExplorer / declassified imagery catalogs
+### 5.2 Data ingestion layer
 
-Data groups:
-- Sentinel-2 L2A
-- Sentinel-1 GRD / SAR
-- Copernicus DEM
-- historical imagery
-- modern disturbance layers
-- hydrology / land cover / slope context
+Implemented now:
 
-### 4.3 Feature engine
+- local raster packs with:
+  - optical time series,
+  - SAR time series,
+  - DEM,
+  - historical imagery,
+  - optional disturbance / confounder / water / forest / quality layers.
+- STAC recipe loader with:
+  - endpoint selection,
+  - asset-group rules,
+  - client-side filters,
+  - target grid configuration,
+  - optional Planetary Computer asset signing.
+- pack builder with:
+  - STAC item selection manifests,
+  - AOI crop + reprojection,
+  - NDVI derivation for optical scenes,
+  - single-band ingestion for DEM / SAR / historical layers,
+  - local raster-pack export.
 
-Per tile or per candidate polygon, compute:
+Planned providers / upgrades:
 
-- spectral anomaly features
-- SAR roughness / moisture contrast features
-- terrain derivatives (slope, curvature, local relief)
-- geometric regularity features
-- multitemporal persistence
-- historical persistence
-- disturbance and confounder penalties
+- Copernicus Data Space with provider-specific auth,
+- openEO back-end,
+- optional Google Earth Engine for research deployments,
+- USGS EarthExplorer / declassified imagery catalogs,
+- additional derived context layers.
 
-### 4.4 Candidate generator
+### 5.3 Feature engine
 
-Use a hybrid strategy:
+Implemented per tile:
 
-1. rules to surface strong anomalies,
-2. anomaly detection for unusual but unexplained patterns,
-3. a ranking model that learns from reviewed examples.
+- spectral anomaly features,
+- SAR contrast features,
+- local DEM microrelief,
+- enclosure-like compactness,
+- line-segment linearity,
+- multitemporal persistence,
+- historical support,
+- disturbance and confounder penalties,
+- contextual fit.
 
-### 4.5 Review application
+### 5.4 Candidate generator
 
-Each candidate card should show:
+Current strategy:
 
-- score
-- redacted or exact location depending on permissions
-- reasons for ranking
-- quicklooks from multiple dates / modalities
-- reviewer decision buttons:
-  - dismiss
-  - low priority
-  - monitor
-  - field-check (authorized)
-  - sensitive / withhold
+1. tile the AOI,
+2. compute anomaly features,
+3. score candidates with landscape-specific weights,
+4. redact or withhold according to sensitivity and permission mode.
 
-## 5. Mongolia-specific scoring logic
+Planned upgrade:
+
+- learned anomaly proposal stage,
+- reviewer-in-the-loop calibration,
+- landscape-specific retraining.
+
+### 5.5 Review application
+
+Implemented now:
+
+- static HTML review map,
+- redaction-aware GeoJSON,
+- ranked JSON export.
+
+Planned later:
+
+- browser map,
+- candidate cards,
+- reviewer decisions,
+- annotation storage,
+- active-learning feedback.
+
+## 6. Mongolia-specific scoring logic
 
 A global model is a bad starting point. Use region presets.
 
 ### Preset A — Steppe monument / enclosure mode
 
-Useful when the surface is open and geometry is visible.
-
 High weight on:
-- microrelief
-- enclosure regularity
-- linearity / ring-ness
-- historical persistence
-- contextual fit near terraces / passes / water access
+
+- microrelief,
+- enclosure regularity,
+- linearity / ring-ness,
+- historical persistence,
+- contextual fit near terraces / passes / water access.
 
 Penalty on:
-- livestock tracks
-- modern vehicle scars
-- recent construction / mining
-- dune migration / wash features
+
+- livestock tracks,
+- modern vehicle scars,
+- recent construction / mining,
+- dune migration / wash features.
 
 ### Preset B — Valley settlement / route mode
 
 High weight on:
-- terrace-edge placement
-- repeated linear traces
-- soil / moisture anomaly persistence
-- relation to water and movement corridors
+
+- terrace-edge placement,
+- repeated linear traces,
+- soil / moisture anomaly persistence,
+- relation to water and movement corridors.
 
 Penalty on:
-- recent irrigation
-- modern field edges
-- erosion gullies
+
+- recent irrigation,
+- modern field edges,
+- erosion gullies.
 
 ### Preset C — Mountain / forest caution mode
 
-Do not overclaim.
+- reduce confidence by default,
+- prioritize drone / LiDAR follow-up where permitted,
+- require stronger multitemporal evidence.
 
-- reduce confidence by default
-- prioritize drone / LiDAR follow-up where permitted
-- require stronger multitemporal evidence
-
-## 6. Guardrails
+## 7. Guardrails
 
 This is a core feature, not a legal afterthought.
 
@@ -156,79 +216,91 @@ The tool should:
 - mask or blur sensitive landscapes,
 - never publish exact coordinates for potentially funerary or sacred candidates in public mode,
 - require explicit authorization to unredact coordinates,
-- log every export,
+- log every export in production deployments,
 - store provenance for every candidate,
 - keep a “withheld” state for candidates that may need handoff to authorities rather than field visitation.
 
-## 7. Proposed phases
+## 8. Proposed phases
 
 ### Phase 0 — Safe scope and architecture
 
-Deliverables:
-- risk model
-- protected-area policy
-- starter codebase
-- synthetic end-to-end run
+Delivered:
+
+- risk model,
+- protected-output logic,
+- starter codebase,
+- synthetic ranking demo.
 
 ### Phase 1 — Offline scoring MVP
 
-Deliverables:
-- ingest precomputed candidate features
-- score / rank / redact
-- export review-ready JSON / GeoJSON
+Delivered:
 
-### Phase 2 — Real open-data ingestion
+- ingest precomputed candidate features,
+- score / rank / redact,
+- export review-ready JSON / GeoJSON.
 
-Deliverables:
-- STAC search
-- cloud masks
-- terrain derivatives
-- seasonal composites
-- basic anomaly maps
+### Phase 2 — Offline AOI analysis on local raster packs
 
-### Phase 3 — Human review workstation
+Delivered:
 
-Deliverables:
-- browser map
-- candidate cards
-- review labels
-- redaction-aware export
+- AOI tiling,
+- raster feature extraction,
+- HTML review map,
+- demo raster pack generator,
+- end-to-end tests.
 
-### Phase 4 — Learning loop
+### Phase 3 — Real open-data ingestion
 
-Deliverables:
-- reviewer feedback dataset
-- landscape-specific retraining
-- calibration and error analysis
+Partially delivered:
 
-## 8. Evaluation plan
+- STAC search,
+- client-side item filtering,
+- selection-manifest export,
+- raster-pack building from live STAC asset HREFs,
+- a combined `analyze-stac` command,
+- Planetary Computer HREF signing support.
+
+Still needed in this phase:
+
+- provider-specific auth for non-public assets,
+- richer optical derivations beyond NDVI,
+- automatic disturbance / water / forest / confounder layers,
+- declassified historical imagery recipes,
+- robust retry / resume support for long runs.
+
+### Phase 4 — Human review workstation
+
+Next:
+
+- browser map,
+- candidate cards,
+- review labels,
+- redaction-aware export,
+- reviewer notes.
+
+### Phase 5 — Learning loop
+
+Next:
+
+- reviewer feedback dataset,
+- landscape-specific retraining,
+- calibration and error analysis.
+
+## 9. Evaluation plan
 
 Measure:
 
-- precision@k for reviewer usefulness
-- false-positive rate by landscape class
-- agreement between reviewers
-- sensitivity-redaction compliance
-- recall against a permitted, non-sensitive validation set
+- precision@k for reviewer usefulness,
+- false-positive classes by landscape,
+- robustness by season,
+- degradation in sand / forest / rugged terrain,
+- redaction correctness,
+- reproducibility of exported candidate sets.
 
-The central KPI for the first version is:
+## 10. Immediate next engineering targets
 
-> “Does this tool cut manual review time while keeping sensitive heritage protected?”
-
-## 9. Recommended first pilot geography
-
-Start outside the most sensitive sacred-core landscapes.
-
-Best first pilot characteristics:
-- open steppe or valley terrain,
-- known but non-sensitive comparison data available,
-- manageable AOI size,
-- realistic field-verification path through local partners.
-
-## 10. Immediate build order
-
-1. keep the safe-by-design policy fixed,
-2. wire in the scoring engine,
-3. produce redacted ranked outputs,
-4. then attach real remote-sensing ingestion,
-5. only later add higher-resolution local validation workflows.
+1. add Mongolia-specific protection layers and a red-zone builder,
+2. add a second optical derivation recipe such as NDMI or SWIR contrast,
+3. add optional historical-image recipes,
+4. benchmark on a permitted reference AOI,
+5. move HTML review into a richer browser UI.

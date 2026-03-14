@@ -1,0 +1,67 @@
+[stac]
+endpoint = "https://planetarycomputer.microsoft.com/api/stac/v1"
+timeout_s = 120.0
+max_pages = 10
+asset_href_signing = "planetary-computer"
+
+[target]
+resolution_m = 30.0
+resampling = "bilinear"
+compress = "deflate"
+nodata = -9999.0
+
+[optical]
+enabled = true
+collection = "landsat-c2-l2"
+datetime = "2024-05-01T00:00:00Z/2024-09-30T23:59:59Z"
+max_items = 6
+search_limit = 60
+output_kind = "ndvi"
+filename_template = "{date}_{item_id}.tif"
+sort_by = "eo:cloud_cover"
+sort_ascending = true
+
+[[optical.filters]]
+property = "eo:cloud_cover"
+lte = 25.0
+
+[optical.asset_groups]
+red = ["red"]
+nir = ["nir08", "nir"]
+
+[dem]
+enabled = true
+collection = "cop-dem-glo-30"
+max_items = 4
+search_limit = 20
+output_kind = "single-band"
+resampling = "bilinear"
+
+[dem.asset_groups]
+primary = ["data", "dem"]
+
+[sar]
+enabled = false
+collection = "sentinel-1-rtc"
+datetime = "2024-05-01T00:00:00Z/2024-09-30T23:59:59Z"
+max_items = 4
+search_limit = 40
+output_kind = "single-band"
+filename_template = "{date}_{item_id}.tif"
+sort_by = "datetime"
+sort_ascending = false
+resampling = "bilinear"
+to_db = true
+
+[sar.asset_groups]
+primary = ["vv"]
+
+[historical]
+enabled = false
+collection = ""
+max_items = 0
+search_limit = 0
+output_kind = "single-band"
+
+[historical.asset_groups]
+primary = ["primary"]
