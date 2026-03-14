@@ -1,4 +1,5 @@
-# Mongolia Prospection Toolkit
+#Totally not AI Gen. Readme:
+# Mongolia Prospection MVP
 
 A safe-by-design starter project for a **non-invasive archaeological prospection and heritage-monitoring workflow** optimized for **Mongolian steppe and mountain-foothill landscapes**.
 
