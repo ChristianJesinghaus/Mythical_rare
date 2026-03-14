@@ -1,0 +1,56 @@
+[
+  {
+    "candidate_id": "tile-001",
+    "raw_score": 0.6661,
+    "adjusted_score": 0.5757,
+    "confidence": "medium",
+    "reasons": [
+      "microrelief signal is strong",
+      "regular enclosure-like geometry detected",
+      "signal persists across multiple observations",
+      "location fits plausible landscape context",
+      "synthetic demo candidate"
+    ],
+    "landscape": "steppe",
+    "sensitivity": "normal",
+    "exact_location": null,
+    "public_location": {
+      "lat": 47.16991555874955,
+      "lon": 91.80898665288095
+    },
+    "tags": [
+      "synthetic",
+      "review-first"
+    ],
+    "source_dates": [
+      "2025-06-12",
+      "2025-09-03"
+    ]
+  },
+  {
+    "candidate_id": "tile-002",
+    "raw_score": 0.5327,
+    "adjusted_score": 0.2465,
+    "confidence": "very-low",
+    "reasons": [
+      "signal persists across multiple observations",
+      "candidate kept for review only, not field action",
+      "confidence should remain conservative"
+    ],
+    "landscape": "mountain",
+    "sensitivity": "restricted",
+    "exact_location": null,
+    "public_location": {
+      "lat": 48.19491555874955,
+      "lon": 90.08267877862323
+    },
+    "tags": [
+      "synthetic",
+      "mountain-caution"
+    ],
+    "source_dates": [
+      "2025-07-18",
+      "2025-10-11"
+    ]
+  }
+]

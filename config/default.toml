@@ -1,0 +1,49 @@
+[scoring]
+penalty_strength = 0.35
+uncertainty_strength = 0.25
+
+[landscape_weights.steppe]
+optical_anomaly = 0.9
+sar_anomaly = 0.6
+microrelief = 1.2
+enclosure_shape = 1.1
+linearity = 0.9
+temporal_persistence = 1.0
+historical_match = 1.0
+contextual_fit = 0.8
+
+[landscape_weights.valley]
+optical_anomaly = 1.0
+sar_anomaly = 0.7
+microrelief = 0.8
+enclosure_shape = 0.7
+linearity = 1.0
+temporal_persistence = 1.0
+historical_match = 0.9
+contextual_fit = 1.1
+
+[landscape_weights.mountain]
+optical_anomaly = 0.6
+sar_anomaly = 0.8
+microrelief = 1.0
+enclosure_shape = 0.6
+linearity = 0.7
+temporal_persistence = 1.1
+historical_match = 0.8
+contextual_fit = 0.8
+
+[landscape_weights.forest]
+optical_anomaly = 0.3
+sar_anomaly = 0.8
+microrelief = 0.7
+enclosure_shape = 0.4
+linearity = 0.5
+temporal_persistence = 0.8
+historical_match = 0.5
+contextual_fit = 0.6
+
+[guardrails]
+public_coordinate_blur_m = 5000
+restricted_coordinate_blur_m = 1000
+block_in_red_zones = true
+withhold_sensitive_candidates = true
