@@ -10,6 +10,8 @@ min_tile_coverage = 0.20
 min_valid_pixel_fraction = 0.30
 min_adjusted_score = 0.30
 max_candidates = 500
+cluster_distance_m = 250
+cluster_min_members = 1
 
 [feature_engine]
 anomaly_sigma_px = 2.0
@@ -18,6 +20,19 @@ anomaly_z_cap = 6.0
 temporal_anomaly_z = 2.5
 edge_sigma = 1.2
 mask_quantile = 0.85
+
+[context_layers]
+relief_sigma_px = 8.0
+curvature_sigma_px = 3.0
+valley_sigma_px = 14.0
+water_seed_quantile = 0.90
+water_distance_scale_m = 1200
+forest_threshold = 0.55
+forest_smoothing_sigma_px = 1.2
+disturbance_sigma_px = 1.4
+disturbance_variance_sigma_px = 3.0
+disturbance_canny_sigma = 1.0
+disturbance_line_sigma_px = 2.0
 
 [landscape_weights.steppe]
 optical_anomaly = 0.9

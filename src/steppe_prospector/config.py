@@ -33,6 +33,8 @@ class AnalysisConfig:
     min_valid_pixel_fraction: float = 0.3
     min_adjusted_score: float = 0.3
     max_candidates: int = 500
+    cluster_distance_m: float = 250.0
+    cluster_min_members: int = 1
 
 
 @dataclass(slots=True)
@@ -43,6 +45,21 @@ class FeatureEngineConfig:
     temporal_anomaly_z: float = 2.5
     edge_sigma: float = 1.2
     mask_quantile: float = 0.85
+
+
+@dataclass(slots=True)
+class ContextLayerConfig:
+    relief_sigma_px: float = 8.0
+    curvature_sigma_px: float = 3.0
+    valley_sigma_px: float = 14.0
+    water_seed_quantile: float = 0.9
+    water_distance_scale_m: float = 1200.0
+    forest_threshold: float = 0.55
+    forest_smoothing_sigma_px: float = 1.2
+    disturbance_sigma_px: float = 1.4
+    disturbance_variance_sigma_px: float = 3.0
+    disturbance_canny_sigma: float = 1.0
+    disturbance_line_sigma_px: float = 2.0
 
 
 @dataclass(slots=True)
@@ -59,12 +76,14 @@ class Settings:
     scoring: ScoringConfig
     analysis: AnalysisConfig
     features: FeatureEngineConfig
+    context_layers: ContextLayerConfig
     guardrails: GuardrailConfig
     landscape_weights: dict[str, LandscapeWeights]
 
 
 DEFAULT_ANALYSIS = AnalysisConfig()
 DEFAULT_FEATURES = FeatureEngineConfig()
+DEFAULT_CONTEXT_LAYERS = ContextLayerConfig()
 DEFAULT_GUARDRAILS = GuardrailConfig(
     public_coordinate_blur_m=5000.0,
     restricted_coordinate_blur_m=1000.0,
@@ -97,6 +116,7 @@ def load_settings(path: str | Path | None = None) -> Settings:
     scoring = ScoringConfig(**raw["scoring"])
     analysis = AnalysisConfig(**_merge_defaults(raw.get("analysis", {}), DEFAULT_ANALYSIS))
     features = FeatureEngineConfig(**_merge_defaults(raw.get("feature_engine", {}), DEFAULT_FEATURES))
+    context_layers = ContextLayerConfig(**_merge_defaults(raw.get("context_layers", {}), DEFAULT_CONTEXT_LAYERS))
     guardrails = GuardrailConfig(**_merge_defaults(raw.get("guardrails", {}), DEFAULT_GUARDRAILS))
 
     landscape_weights = {
@@ -108,6 +128,7 @@ def load_settings(path: str | Path | None = None) -> Settings:
         scoring=scoring,
         analysis=analysis,
         features=features,
+        context_layers=context_layers,
         guardrails=guardrails,
         landscape_weights=landscape_weights,
     )

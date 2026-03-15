@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[91.0, 47.0], [91.02, 47.0], [91.02, 47.02], [91.0, 47.02], [91.0, 47.0]]]
+      },
+      "properties": {
+        "name": "example-core-zone",
+        "category": "protected"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [91.05, 47.01]
+      },
+      "properties": {
+        "name": "example-point-zone",
+        "category": "restricted"
+      }
+    }
+  ]
+}

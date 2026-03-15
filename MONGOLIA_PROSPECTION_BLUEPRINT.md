@@ -1,306 +1,113 @@
-# Blueprint: Mongolia Steppe Prospection Tool
+# Mongolia Prospection Blueprint
 
-## 1. Product goal
+## Scope
 
-Build a remote-sensing tool that helps an authorized researcher review **possible archaeological landscape anomalies in Mongolia** without exposing sensitive heritage locations to casual use.
+This project is a **non-invasive, authorization-based prospection and review tool** for Mongolian archaeological landscapes. It is designed to identify and prioritize **anomalous landscape zones** for expert review, not to claim discoveries or to target a specific grave or sacred tomb.
 
-The product should:
+## Product goal
 
-- accept a user-defined AOI,
-- ingest open satellite and terrain data,
-- compute Mongolia-appropriate features,
-- generate and rank candidates,
-- redact exact coordinates unless permissions are present,
-- support manual review and later field verification.
+Build a workflow that lets a researcher:
 
-## 2. Current implementation status
+1. define an AOI,
+2. collect open remote-sensing data,
+3. derive a local raster pack,
+4. compute anomaly evidence tile by tile,
+5. group nearby hits into stable candidate zones,
+6. review those zones under redaction-aware guardrails.
 
-### Already implemented in the repository
+## Architecture phases
 
-- AOI loading from GeoJSON
-- AOI tiling in local metric CRS
-- local raster-pack ingestion
-- optical / SAR / DEM / historical tile feature extraction
-- Mongolia-specific candidate scoring
-- red-zone-aware redaction and withholding
-- JSON + GeoJSON + HTML review export
-- synthetic end-to-end demo pack and tests
-- STAC recipe parsing
-- live STAC item search and selection manifest export
-- automatic raster-pack preparation from selected STAC assets
-- optional Planetary Computer HREF signing for asset access
-- end-to-end `analyze-stac` CLI orchestration
+### Phase 1: scoring MVP
 
-### Implemented, but still narrow
+- flat candidate schema,
+- simple ranking model,
+- basic redaction and permit modes.
 
-- optical STAC ingestion currently derives **NDVI** only
-- SAR / DEM / historical ingestion currently supports **single-band** outputs
-- provider auth beyond public or pre-signed URLs is still limited
-- no official Mongolia heritage/protection layers are bundled yet
-
-### Not yet implemented
-
-- official protected-area / heritage-zone datasets
-- reviewer labeling loop
-- calibration against a permitted validation corpus
-- dedicated browser workstation
-- richer context layers such as water access, forest cover, and disturbance surfaces built automatically from open data
-
-## 3. What the tool should optimize for in Mongolia
-
-The first serious deployment version should focus on landscapes where open remote sensing has the best signal-to-noise ratio:
-
-- open **steppe / semi-arid plains**,
-- **river valleys and terraces**,
-- **mountain foothills** with visible topographic structure.
-
-The first version should explicitly **down-weight**:
-
-- dense forest,
-- unstable dune or sand-cover zones,
-- zones with poor high-resolution imagery,
-- sacred / protected / funerary landscapes lacking permits.
-
-## 4. Detection philosophy
-
-The tool should never directly output “archaeological site confirmed”.
-
-It should output:
-
-- a **candidate score**,
-- a **confidence band**,
-- an **evidence trace** explaining why the candidate was ranked,
-- a **sensitivity status** that controls whether coordinates are shown.
-
-## 5. System architecture
-
-### 5.1 AOI manager
-
-Inputs:
-
-- polygon AOI,
-- user role / permission mode,
-- research objective.
-
-Responsibilities:
-
-- tile AOI into processing units,
-- intersect AOI with red-zone layers,
-- block or blur high-sensitivity outputs,
-- attach provenance metadata.
-
-### 5.2 Data ingestion layer
-
-Implemented now:
-
-- local raster packs with:
-  - optical time series,
-  - SAR time series,
-  - DEM,
-  - historical imagery,
-  - optional disturbance / confounder / water / forest / quality layers.
-- STAC recipe loader with:
-  - endpoint selection,
-  - asset-group rules,
-  - client-side filters,
-  - target grid configuration,
-  - optional Planetary Computer asset signing.
-- pack builder with:
-  - STAC item selection manifests,
-  - AOI crop + reprojection,
-  - NDVI derivation for optical scenes,
-  - single-band ingestion for DEM / SAR / historical layers,
-  - local raster-pack export.
-
-Planned providers / upgrades:
-
-- Copernicus Data Space with provider-specific auth,
-- openEO back-end,
-- optional Google Earth Engine for research deployments,
-- USGS EarthExplorer / declassified imagery catalogs,
-- additional derived context layers.
-
-### 5.3 Feature engine
-
-Implemented per tile:
-
-- spectral anomaly features,
-- SAR contrast features,
-- local DEM microrelief,
-- enclosure-like compactness,
-- line-segment linearity,
-- multitemporal persistence,
-- historical support,
-- disturbance and confounder penalties,
-- contextual fit.
-
-### 5.4 Candidate generator
-
-Current strategy:
-
-1. tile the AOI,
-2. compute anomaly features,
-3. score candidates with landscape-specific weights,
-4. redact or withhold according to sensitivity and permission mode.
-
-Planned upgrade:
-
-- learned anomaly proposal stage,
-- reviewer-in-the-loop calibration,
-- landscape-specific retraining.
-
-### 5.5 Review application
-
-Implemented now:
-
-- static HTML review map,
-- redaction-aware GeoJSON,
-- ranked JSON export.
-
-Planned later:
-
-- browser map,
-- candidate cards,
-- reviewer decisions,
-- annotation storage,
-- active-learning feedback.
-
-## 6. Mongolia-specific scoring logic
-
-A global model is a bad starting point. Use region presets.
-
-### Preset A — Steppe monument / enclosure mode
-
-High weight on:
-
-- microrelief,
-- enclosure regularity,
-- linearity / ring-ness,
-- historical persistence,
-- contextual fit near terraces / passes / water access.
-
-Penalty on:
-
-- livestock tracks,
-- modern vehicle scars,
-- recent construction / mining,
-- dune migration / wash features.
-
-### Preset B — Valley settlement / route mode
-
-High weight on:
-
-- terrace-edge placement,
-- repeated linear traces,
-- soil / moisture anomaly persistence,
-- relation to water and movement corridors.
-
-Penalty on:
-
-- recent irrigation,
-- modern field edges,
-- erosion gullies.
-
-### Preset C — Mountain / forest caution mode
-
-- reduce confidence by default,
-- prioritize drone / LiDAR follow-up where permitted,
-- require stronger multitemporal evidence.
-
-## 7. Guardrails
-
-This is a core feature, not a legal afterthought.
-
-The tool should:
-
-- mask or blur sensitive landscapes,
-- never publish exact coordinates for potentially funerary or sacred candidates in public mode,
-- require explicit authorization to unredact coordinates,
-- log every export in production deployments,
-- store provenance for every candidate,
-- keep a “withheld” state for candidates that may need handoff to authorities rather than field visitation.
-
-## 8. Proposed phases
-
-### Phase 0 — Safe scope and architecture
-
-Delivered:
-
-- risk model,
-- protected-output logic,
-- starter codebase,
-- synthetic ranking demo.
-
-### Phase 1 — Offline scoring MVP
-
-Delivered:
-
-- ingest precomputed candidate features,
-- score / rank / redact,
-- export review-ready JSON / GeoJSON.
-
-### Phase 2 — Offline AOI analysis on local raster packs
-
-Delivered:
+### Phase 2: local raster-pack analyzer
 
 - AOI tiling,
-- raster feature extraction,
-- HTML review map,
-- demo raster pack generator,
-- end-to-end tests.
+- DEM / optical / SAR / historical feature extraction,
+- JSON / GeoJSON / HTML outputs.
 
-### Phase 3 — Real open-data ingestion
+### Phase 3: open-data ingestion
 
-Partially delivered:
+- STAC search and item selection,
+- automatic raster-pack creation,
+- provider-specific HREF signing where needed.
 
-- STAC search,
-- client-side item filtering,
-- selection-manifest export,
-- raster-pack building from live STAC asset HREFs,
-- a combined `analyze-stac` command,
-- Planetary Computer HREF signing support.
+### Phase 4: reviewer workflow
 
-Still needed in this phase:
+- automatic context-layer generation,
+- candidate clustering,
+- red-zone normalization/import,
+- richer review outputs.
 
-- provider-specific auth for non-public assets,
-- richer optical derivations beyond NDVI,
-- automatic disturbance / water / forest / confounder layers,
-- declassified historical imagery recipes,
-- robust retry / resume support for long runs.
+## Phase 4 details
 
-### Phase 4 — Human review workstation
+### 1. Context layers
 
-Next:
+Generate reviewer-friendly risk/context layers from the raster pack when they are missing:
 
-- browser map,
-- candidate cards,
-- review labels,
-- redaction-aware export,
-- reviewer notes.
+- `disturbance.tif` — heuristics for modern linear disturbance and abrupt edge/variance patterns,
+- `confounder.tif` — ruggedness / slope / concavity proxy for natural false positives,
+- `water_proximity.tif` — valley-floor / wetness-distance proxy,
+- `forest.tif` — optical vegetation proxy,
+- `quality.tif` — finite-data coverage proxy.
 
-### Phase 5 — Learning loop
+These layers improve `contextual_fit`, `modern_disturbance`, `natural_confounder_risk`, and `data_quality`.
 
-Next:
+### 2. Candidate clustering
 
-- reviewer feedback dataset,
-- landscape-specific retraining,
-- calibration and error analysis.
+Tiles are useful for extraction, but clusters are better for human review.
 
-## 9. Evaluation plan
+Phase 4 introduces:
 
-Measure:
+- spatial grouping of nearby ranked tiles,
+- deterministic cluster IDs,
+- aggregated cluster score and reasons,
+- cluster area and member count,
+- cluster-level GeoJSON/JSON export.
 
-- precision@k for reviewer usefulness,
-- false-positive classes by landscape,
-- robustness by season,
-- degradation in sand / forest / rugged terrain,
-- redaction correctness,
-- reproducibility of exported candidate sets.
+### 3. Red-zone import
 
-## 10. Immediate next engineering targets
+External protected-area or heritage GeoJSON often arrives in inconsistent form.
 
-1. add Mongolia-specific protection layers and a red-zone builder,
-2. add a second optical derivation recipe such as NDMI or SWIR contrast,
-3. add optional historical-image recipes,
-4. benchmark on a permitted reference AOI,
-5. move HTML review into a richer browser UI.
+Phase 4 normalizes it by:
+
+- choosing a stable `name` field,
+- optional category filtering,
+- optional point/line buffering,
+- optional simplify,
+- optional dissolve by name/category/all,
+- standardized `FeatureCollection` export.
+
+### 4. Review outputs
+
+Each analysis bundle now includes:
+
+- ranked candidate tiles,
+- ranked candidate clusters,
+- HTML map with AOI, clusters, candidate tiles, and red zones,
+- markdown analysis report,
+- summary JSON.
+
+## Recommended field workflow
+
+1. Choose a permitted AOI.
+2. Run `stac-search`.
+3. Run `prepare-pack`.
+4. Build or refresh context layers.
+5. Run `analyze` with overlap for cluster-friendly review.
+6. Review clusters first, tiles second.
+7. Only escalate to field follow-up under valid permissions.
+
+## Phase 5 candidates
+
+Natural next extensions after Phase 4:
+
+- additional optical indices beyond NDVI,
+- stronger SAR products and time-series recipes,
+- official Mongolia protection layers,
+- reviewer labeling and feedback capture,
+- active-learning loop,
+- richer browser review app.

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable
 
 from shapely.geometry.base import BaseGeometry
 
 from .aoi import AOI, AOITile, tile_aoi
-from .config import AnalysisConfig, Settings, load_settings
+from .clustering import CandidateCluster, cluster_ranked_records
+from .config import GuardrailConfig, Settings, load_settings
 from .datapack import LocalRasterPack, open_local_raster_pack
-from .guardrails import RedZoneLike, geometry_hits_red_zone, matched_red_zones
+from .guardrails import RedZoneLike, matched_red_zones
 from .models import Candidate, Coordinate, PermitMode, RankedCandidate, SensitivityLevel
 from .pipeline import MongoliaProspectionPipeline
 from .raster_features import RasterReadError, TileFeatureResult, extract_tile_features
@@ -54,7 +54,9 @@ class CandidateRecord:
 class AOIAnalysisResult:
     records: list[CandidateRecord]
     ranked: list[RankedCandidate]
+    clusters: list[CandidateCluster]
     permit_mode: PermitMode
+    guardrail_config: GuardrailConfig
     total_tiles: int
     processed_tiles: int
 
@@ -110,6 +112,7 @@ class AOIAnalyzer:
         min_valid_pixel_fraction: float | None = None,
         min_adjusted_score: float | None = None,
         max_candidates: int | None = None,
+        cluster_distance_m: float | None = None,
     ) -> AOIAnalysisResult:
         analysis_cfg = self.settings.analysis
         tile_size_m = tile_size_m or analysis_cfg.tile_size_m
@@ -120,6 +123,7 @@ class AOIAnalyzer:
         )
         min_adjusted_score = min_adjusted_score if min_adjusted_score is not None else analysis_cfg.min_adjusted_score
         max_candidates = max_candidates if max_candidates is not None else analysis_cfg.max_candidates
+        cluster_distance_m = cluster_distance_m if cluster_distance_m is not None else analysis_cfg.cluster_distance_m
 
         if not pack.optical and not pack.sar:
             raise ValueError("The raster pack must include at least one optical or SAR series.")
@@ -169,11 +173,26 @@ class AOIAnalyzer:
 
         allowed_ids = {item.candidate_id for item in ranked}
         filtered_records = [record for record in records if record.candidate.candidate_id in allowed_ids]
+        ranked_by_id = {item.candidate_id: item for item in ranked}
+        ranked_pairs = [
+            (record, ranked_by_id[record.candidate.candidate_id])
+            for record in filtered_records
+            if record.candidate.candidate_id in ranked_by_id
+        ]
+        clusters = cluster_ranked_records(
+            ranked_pairs,
+            permit_mode=permit_mode,
+            guardrails=self.settings.guardrails,
+            cluster_distance_m=cluster_distance_m,
+            cluster_min_members=self.settings.analysis.cluster_min_members,
+        )
 
         return AOIAnalysisResult(
             records=filtered_records,
             ranked=ranked,
+            clusters=clusters,
             permit_mode=permit_mode,
+            guardrail_config=self.settings.guardrails,
             total_tiles=len(tiles),
             processed_tiles=processed_tiles,
         )

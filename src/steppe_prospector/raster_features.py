@@ -337,6 +337,15 @@ def mean_normalized(array: np.ma.MaskedArray) -> float | None:
     return float(np.mean(normalized))
 
 
+def mean_probability(array: np.ma.MaskedArray) -> float | None:
+    values = array.compressed().astype("float32")
+    if values.size < 10:
+        return None
+    if float(np.min(values)) >= -0.05 and float(np.max(values)) <= 1.05:
+        return float(np.clip(np.mean(values), 0.0, 1.0))
+    return mean_normalized(array)
+
+
 def extract_tile_features(
     rasters: OpenLocalRasterPack,
     tile_geometry_wgs84: BaseGeometry,
@@ -371,9 +380,9 @@ def extract_tile_features(
     temporal = float(np.mean(temporal_components)) if temporal_components else 0.0
     historical = historical_match_score(current_mask, historical_arrays, cfg)
 
-    disturbance_mean = mean_normalized(read_masked_array(rasters.disturbance, tile_geometry_wgs84)) if rasters.disturbance is not None else 0.0
-    confounder_from_raster = mean_normalized(read_masked_array(rasters.confounder, tile_geometry_wgs84)) if rasters.confounder is not None else None
-    water_proximity_mean = mean_normalized(read_masked_array(rasters.water_proximity, tile_geometry_wgs84)) if rasters.water_proximity is not None else None
+    disturbance_mean = mean_probability(read_masked_array(rasters.disturbance, tile_geometry_wgs84)) if rasters.disturbance is not None else 0.0
+    confounder_from_raster = mean_probability(read_masked_array(rasters.confounder, tile_geometry_wgs84)) if rasters.confounder is not None else None
+    water_proximity_mean = mean_probability(read_masked_array(rasters.water_proximity, tile_geometry_wgs84)) if rasters.water_proximity is not None else None
 
     forest_fraction = None
     if rasters.forest is not None:
@@ -390,7 +399,7 @@ def extract_tile_features(
     quality_components = [valid_fraction(dem_array)]
     quality_components.extend(valid_fraction(array) for array in optical_arrays + sar_arrays + historical_arrays if array.size)
     if rasters.quality is not None:
-        quality_mean = mean_normalized(read_masked_array(rasters.quality, tile_geometry_wgs84))
+        quality_mean = mean_probability(read_masked_array(rasters.quality, tile_geometry_wgs84))
         if quality_mean is not None:
             quality_components.append(quality_mean)
     data_quality = clamp01(float(np.mean(quality_components))) if quality_components else 0.0

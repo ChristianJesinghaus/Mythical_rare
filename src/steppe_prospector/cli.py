@@ -7,6 +7,7 @@ from pathlib import Path
 from .analysis import AOIAnalyzer
 from .aoi import load_aoi
 from .config import load_settings
+from .context_layers import build_context_layers
 from .datapack import LocalRasterPack
 from .demo import create_demo_dataset
 from .guardrails import demo_red_zones, load_red_zones_geojson
@@ -15,6 +16,7 @@ from .io import load_candidates, save_ranked
 from .models import PermitMode
 from .outputs import write_analysis_bundle
 from .pipeline import MongoliaProspectionPipeline
+from .redzone_import import RedZoneImportOptions, import_red_zones_geojson
 from .stac import build_stac_selection
 from .stac_recipe import load_stac_recipe
 
@@ -67,8 +69,15 @@ def build_parser() -> argparse.ArgumentParser:
     analyze.add_argument("--config", help="Optional path to a TOML config.")
     analyze.add_argument("--tile-size-m", type=float, help="Override tile size in meters")
     analyze.add_argument("--tile-step-m", type=float, help="Override tile step in meters")
+    analyze.add_argument("--cluster-distance-m", type=float, help="Cluster neighboring candidates within this distance (meters)")
     analyze.add_argument("--min-adjusted-score", type=float, help="Minimum adjusted score to keep")
     analyze.add_argument("--max-candidates", type=int, help="Maximum number of candidates to export")
+    analyze.add_argument(
+        "--context-mode",
+        default="auto",
+        choices=["auto", "off", "overwrite"],
+        help="auto = build missing context layers before analysis; overwrite = rebuild them",
+    )
 
     stac_search = subparsers.add_parser("stac-search", help="Search a STAC endpoint and save the selected items")
     stac_search.add_argument("--aoi", required=True, help="Path to AOI GeoJSON")
@@ -83,6 +92,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--selection-manifest",
         help="Optional existing selection manifest JSON. If omitted, STAC search is performed first.",
     )
+    prepare_pack.add_argument(
+        "--context-mode",
+        default="auto",
+        choices=["auto", "off", "overwrite"],
+        help="auto = build missing context layers after pack creation; overwrite = rebuild them",
+    )
+    prepare_pack.add_argument("--config", help="Optional path to a TOML config.")
 
     analyze_stac = subparsers.add_parser(
         "analyze-stac",
@@ -101,8 +117,40 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_stac.add_argument("--config", help="Optional path to a TOML config.")
     analyze_stac.add_argument("--tile-size-m", type=float, help="Override tile size in meters")
     analyze_stac.add_argument("--tile-step-m", type=float, help="Override tile step in meters")
+    analyze_stac.add_argument("--cluster-distance-m", type=float, help="Cluster neighboring candidates within this distance (meters)")
     analyze_stac.add_argument("--min-adjusted-score", type=float, help="Minimum adjusted score to keep")
     analyze_stac.add_argument("--max-candidates", type=int, help="Maximum number of candidates to export")
+    analyze_stac.add_argument(
+        "--context-mode",
+        default="auto",
+        choices=["auto", "off", "overwrite"],
+        help="auto = build missing context layers after pack creation; overwrite = rebuild them",
+    )
+
+    build_context = subparsers.add_parser("build-context", help="Build or refresh heuristic context layers in a local raster pack")
+    build_context.add_argument("--data-pack", required=True, help="Directory containing the local raster pack")
+    build_context.add_argument("--config", help="Optional path to a TOML config.")
+    build_context.add_argument("--overwrite", action="store_true", help="Rebuild existing context layers")
+
+    import_redzones = subparsers.add_parser("import-red-zones", help="Normalize and optionally dissolve external red-zone GeoJSON")
+    import_redzones.add_argument("--input", required=True, help="Input GeoJSON file")
+    import_redzones.add_argument("--output", required=True, help="Output normalized GeoJSON file")
+    import_redzones.add_argument("--summary-output", help="Optional JSON summary path")
+    import_redzones.add_argument("--name-field", default="name", help="Property to use as the red-zone name")
+    import_redzones.add_argument("--category-field", help="Optional property to use as category")
+    import_redzones.add_argument("--include-category", action="append", default=[], help="Keep only features with this category (repeatable)")
+    import_redzones.add_argument("--exclude-category", action="append", default=[], help="Drop features with this category (repeatable)")
+    import_redzones.add_argument("--buffer-m", type=float, default=0.0, help="Extra polygon buffer in meters")
+    import_redzones.add_argument("--point-buffer-m", type=float, default=100.0, help="Buffer for point features in meters")
+    import_redzones.add_argument("--line-buffer-m", type=float, default=50.0, help="Buffer for line features in meters")
+    import_redzones.add_argument("--simplify-m", type=float, default=0.0, help="Simplify geometries in meters")
+    import_redzones.add_argument("--min-area-ha", type=float, default=0.0, help="Minimum area threshold in hectares")
+    import_redzones.add_argument(
+        "--dissolve-by",
+        default="none",
+        choices=["none", "name", "category", "all"],
+        help="Optionally dissolve features before export",
+    )
 
     demo = subparsers.add_parser("demo", help="Generate a synthetic demo pack and run the analyzer")
     demo.add_argument("output_dir", help="Directory where demo data and outputs will be written")
@@ -129,8 +177,19 @@ def _load_red_zones(args: argparse.Namespace):
     return zones
 
 
+def _settings_from_args(args: argparse.Namespace):
+    return load_settings(args.config) if getattr(args, "config", None) else load_settings()
+
+
+def _maybe_build_context(args: argparse.Namespace, settings, pack_dir: str | Path):
+    mode = getattr(args, "context_mode", "auto")
+    if mode == "off":
+        return None
+    return build_context_layers(pack_dir, settings.context_layers, overwrite=(mode == "overwrite"))
+
+
 def run_rank(args: argparse.Namespace) -> Path:
-    settings = load_settings(args.config) if getattr(args, "config", None) else load_settings()
+    settings = _settings_from_args(args)
     pipeline = MongoliaProspectionPipeline(
         settings=settings,
         red_zones=_load_red_zones(args),
@@ -143,7 +202,9 @@ def run_rank(args: argparse.Namespace) -> Path:
 
 
 def run_analyze(args: argparse.Namespace) -> dict[str, Path]:
-    settings = load_settings(args.config) if getattr(args, "config", None) else load_settings()
+    settings = _settings_from_args(args)
+    _maybe_build_context(args, settings, args.data_pack)
+
     analyzer = AOIAnalyzer(settings=settings, red_zones=_load_red_zones(args))
     aoi = load_aoi(args.aoi)
     pack = LocalRasterPack.from_directory(args.data_pack)
@@ -153,6 +214,7 @@ def run_analyze(args: argparse.Namespace) -> dict[str, Path]:
         permit_mode=PermitMode(args.permit_mode),
         tile_size_m=args.tile_size_m,
         tile_step_m=args.tile_step_m,
+        cluster_distance_m=args.cluster_distance_m,
         min_adjusted_score=args.min_adjusted_score,
         max_candidates=args.max_candidates,
     )
@@ -177,11 +239,18 @@ def run_prepare_pack(args: argparse.Namespace) -> dict[str, Path]:
         selection=selection,
         selection_manifest_path=Path(args.output_dir) / "selection_manifest.json",
     )
-    return {
+
+    outputs = {
         "pack_dir": prepared.pack_dir,
         "selection_manifest": prepared.selection_manifest,
         "pack_manifest": prepared.pack_manifest,
     }
+
+    settings = _settings_from_args(args)
+    context_result = _maybe_build_context(args, settings, prepared.pack_dir)
+    if context_result and context_result.context_manifest is not None:
+        outputs["context_manifest"] = context_result.context_manifest
+    return outputs
 
 
 def run_analyze_stac(args: argparse.Namespace) -> dict[str, Path]:
@@ -195,6 +264,8 @@ def run_analyze_stac(args: argparse.Namespace) -> dict[str, Path]:
             recipe=args.recipe,
             output_dir=pack_dir,
             selection_manifest=None,
+            context_mode=args.context_mode,
+            config=args.config,
         )
     )
 
@@ -209,8 +280,10 @@ def run_analyze_stac(args: argparse.Namespace) -> dict[str, Path]:
             config=args.config,
             tile_size_m=args.tile_size_m,
             tile_step_m=args.tile_step_m,
+            cluster_distance_m=args.cluster_distance_m,
             min_adjusted_score=args.min_adjusted_score,
             max_candidates=args.max_candidates,
+            context_mode="off",
         )
     )
 
@@ -219,10 +292,44 @@ def run_analyze_stac(args: argparse.Namespace) -> dict[str, Path]:
     return outputs
 
 
+def run_build_context(args: argparse.Namespace) -> dict[str, Path]:
+    settings = _settings_from_args(args)
+    result = build_context_layers(args.data_pack, settings.context_layers, overwrite=args.overwrite)
+    outputs = {key: path for key, path in result.outputs.items() if path is not None}
+    if result.context_manifest is not None:
+        outputs["context_manifest"] = result.context_manifest
+    return outputs
+
+
+def run_import_red_zones(args: argparse.Namespace) -> dict[str, Path]:
+    options = RedZoneImportOptions(
+        name_field=args.name_field,
+        category_field=args.category_field,
+        include_categories=list(args.include_category or []),
+        exclude_categories=list(args.exclude_category or []),
+        buffer_m=args.buffer_m,
+        point_buffer_m=args.point_buffer_m,
+        line_buffer_m=args.line_buffer_m,
+        simplify_m=args.simplify_m,
+        min_area_ha=args.min_area_ha,
+        dissolve_by=args.dissolve_by,
+    )
+    summary = import_red_zones_geojson(
+        args.input,
+        args.output,
+        options=options,
+        summary_path=args.summary_output,
+    )
+    outputs = {"output": summary.output_path}
+    if summary.summary_path is not None:
+        outputs["summary"] = summary.summary_path
+    return outputs
+
+
 def run_demo(args: argparse.Namespace) -> dict[str, Path]:
     root = Path(args.output_dir)
     assets = create_demo_dataset(root)
-    settings = load_settings(args.config) if getattr(args, "config", None) else load_settings()
+    settings = _settings_from_args(args)
     analyzer = AOIAnalyzer(settings=settings, red_zones=load_red_zones_geojson(assets["red_zones"]))
     result = analyzer.analyze(
         aoi=load_aoi(assets["aoi"]),
@@ -237,7 +344,19 @@ def run_demo(args: argparse.Namespace) -> dict[str, Path]:
 def main(argv: list[str] | None = None) -> None:
     argv = list(sys.argv[1:] if argv is None else argv)
 
-    if argv and argv[0] not in {"rank", "analyze", "stac-search", "prepare-pack", "analyze-stac", "demo", "make-demo", "-h", "--help"}:
+    if argv and argv[0] not in {
+        "rank",
+        "analyze",
+        "stac-search",
+        "prepare-pack",
+        "analyze-stac",
+        "build-context",
+        "import-red-zones",
+        "demo",
+        "make-demo",
+        "-h",
+        "--help",
+    }:
         args = _legacy_rank_parser().parse_args(argv)
         output_path = run_rank(args)
         print(output_path)
@@ -264,6 +383,16 @@ def main(argv: list[str] | None = None) -> None:
         return
     if args.command == "analyze-stac":
         outputs = run_analyze_stac(args)
+        for path in outputs.values():
+            print(path)
+        return
+    if args.command == "build-context":
+        outputs = run_build_context(args)
+        for path in outputs.values():
+            print(path)
+        return
+    if args.command == "import-red-zones":
+        outputs = run_import_red_zones(args)
         for path in outputs.values():
             print(path)
         return
